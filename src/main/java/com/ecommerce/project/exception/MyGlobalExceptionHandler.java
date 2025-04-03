@@ -1,7 +1,6 @@
-package com.ecommerce.project.controller.com.ecommerce.project.exception;
+package com.ecommerce.project.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -43,6 +42,20 @@ public class MyGlobalExceptionHandler {
         String message = e.getMessage();
         return new ResponseEntity<>(message , HttpStatus.NOT_FOUND);
     }
+
+
+    @ExceptionHandler(APIException.class)
+    public ResponseEntity<String> myAPIException(APIException e){
+        String message = e.getMessage();
+        return new ResponseEntity<>(message , HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoCategoryFoundException.class)
+    public ResponseEntity<String> noCategoryAvailable(NoCategoryFoundException e){
+        String message = e.getMessage();
+        return new ResponseEntity<>(message , HttpStatus.NOT_FOUND);
+    }
+
 
 }
 
