@@ -27,10 +27,9 @@ public class CategoryController {
     }
 
     @PostMapping("/category")
-    public ResponseEntity<String> addCategory( @Valid @RequestBody Category category){
-        categoryService.createCategory(category);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Category Added Successfully");
+    public ResponseEntity<CategoryDTO> addCategory( @Valid @RequestBody Category category){
+        CategoryDTO savedCategoryDTO = categoryService.createCategory(category);
+        return new ResponseEntity<>(savedCategoryDTO , HttpStatus.CREATED);
     }
 
     @DeleteMapping("/category/{categoryId}")
