@@ -21,8 +21,11 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/category")
-    public ResponseEntity<CategoryResponse> getAllCategories(){
-        CategoryResponse categoryResponse = categoryService.getAllCategories();
+    public ResponseEntity<CategoryResponse> getAllCategories(
+            @RequestParam(name="pageNumber") Integer pageNumber,
+            @RequestParam(name="pageSize") Integer pageSize
+    ){
+        CategoryResponse categoryResponse = categoryService.getAllCategories(pageNumber,pageSize);
         return ResponseEntity.status(HttpStatus.OK).body(categoryResponse);
     }
 
@@ -33,17 +36,16 @@ public class CategoryController {
     }
 
     @DeleteMapping("/category/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
-            String status =  categoryService.deleteCategory(categoryId);
-            return ResponseEntity.status(HttpStatus.OK).body(status);
+    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId){
+            CategoryDTO deletedCategory =  categoryService.deleteCategory(categoryId);
+            return new ResponseEntity<>(deletedCategory, HttpStatus.OK);
     }
 
     @PutMapping("/category/{categoryId}")
-    public ResponseEntity<String> updateCategory( @Valid @RequestBody Category category ,
-                                                  @PathVariable Long categoryId ){
-            Category categoryUpdated = categoryService.updateCategory(categoryId , category);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("Category Updated successfully :- "+categoryId);
+    public ResponseEntity<CategoryDTO> updateCategory( @Valid @RequestBody Category category ,
+                                                              @PathVariable Long categoryId ){
+            CategoryDTO categoryDTOUpdated = categoryService.updateCategory(categoryId , category);
+            return new ResponseEntity<>(categoryDTOUpdated , HttpStatus.OK);
     }
 
 }
