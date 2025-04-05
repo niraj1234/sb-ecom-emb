@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
 
-    @Override
+//    @Override  without sorting
     public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize) {
 //        List<Category> savedCategories =  categoryRepository.findAll();
         Pageable pageDetails = PageRequest.of(pageNumber,pageSize);
@@ -64,6 +65,37 @@ public class CategoryServiceImpl implements CategoryService {
             categoryResponse.setLastPage(categoryPage.isLast());
 
             return categoryResponse;
+    }
+
+
+    @Override
+    public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+//      List<Category> savedCategories =  categoryRepository.findAll();
+
+        Sort sortByAndOrder = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+//        Pageable pageDetails = PageRequest.of(pageNumber,pageSize);
+        Pageable pageDetails = PageRequest.of(pageNumber,pageSize,sortByAndOrder);
+        Page<Category> categoryPage = categoryRepository.findAll(pageDetails);
+        List<Category> savedCategories = categoryPage.getContent();
+
+        if(savedCategories.isEmpty()){
+            throw new NoCategoryFoundException("No Category available at this time");
+        }
+        List<CategoryDTO> categoryDtos = savedCategories.stream()
+                .map( category -> modelMapper.map(category , CategoryDTO.class))
+                .collect(Collectors.toList());
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setContent(categoryDtos);
+        categoryResponse.setPageNumber(categoryPage.getNumber());
+        categoryResponse.setPageSize(categoryPage.getSize());
+        categoryResponse.setTotalElements(categoryPage.getTotalElements());
+        categoryResponse.setTotalPages(categoryPage.getTotalPages());
+        categoryResponse.setLastPage(categoryPage.isLast());
+
+        return categoryResponse;
     }
 
     @Override
@@ -91,7 +123,8 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTO deleteCategory(Long categoryId) {
         Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
 //        Category categoryInDb = categoryOpt.orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND , "Category not found"));
-        Category categoryInDb = categoryOpt.orElseThrow(()-> new ResourceNotFoundException("Category" , "categoryId" , categoryId));
+//        Category categoryInDb = categoryOpt.orElseThrow(()-> new ResourceNotFoundException("Category" , "categoryId" , categoryId));
+        Category categoryInDb = categoryOpt.orElseThrow(()-> new NoCategoryFoundException("Category not found with categoryid :- " +categoryId));
         categoryRepository.delete(categoryInDb);
         CategoryDTO categoryDTO = modelMapper.map(categoryInDb , CategoryDTO.class);
         System.out.println("Category deleted successfully  category id :- " + categoryId);

@@ -1,5 +1,6 @@
 package com.ecommerce.project.exception;
 
+import com.ecommerce.project.payload.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -45,15 +46,17 @@ public class MyGlobalExceptionHandler {
 
 
     @ExceptionHandler(APIException.class)
-    public ResponseEntity<String> myAPIException(APIException e){
+    public ResponseEntity<APIResponse> myAPIException(APIException e){
         String message = e.getMessage();
-        return new ResponseEntity<>(message , HttpStatus.BAD_REQUEST);
+        APIResponse apiResponse = new APIResponse(message,false);
+        return new ResponseEntity<>(apiResponse , HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NoCategoryFoundException.class)
-    public ResponseEntity<String> noCategoryAvailable(NoCategoryFoundException e){
+    public ResponseEntity<APIResponse> noCategoryAvailable(NoCategoryFoundException e){
         String message = e.getMessage();
-        return new ResponseEntity<>(message , HttpStatus.NOT_FOUND);
+        APIResponse apiResponse = new APIResponse(message,false);
+        return new ResponseEntity<>(apiResponse , HttpStatus.NOT_FOUND);
     }
 
 
