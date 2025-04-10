@@ -5,11 +5,13 @@ import com.ecommerce.project.model.Product;
 import com.ecommerce.project.payload.ProductDTO;
 import com.ecommerce.project.payload.ProductResponse;
 import com.ecommerce.project.service.ProductService;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
@@ -47,7 +49,8 @@ public class ProductController {
     }
 
     @PutMapping("/admin/products/{productId}")
-    public ResponseEntity<ProductDTO> updateProduct(@RequestBody Product product , @PathVariable Long productId){
+    public ResponseEntity<ProductDTO> updateProduct(@RequestBody Product product ,
+                                                    @PathVariable Long productId){
         ProductDTO updatedProductDTO = productService.updateProduct(productId,product);
         return new ResponseEntity<>(updatedProductDTO , HttpStatus.OK);
     }
@@ -57,5 +60,12 @@ public class ProductController {
     public ResponseEntity<ProductDTO> deleteProduct(@PathVariable Long productId){
         ProductDTO deletedProductDTO = productService.deleteProduct(productId);
         return new ResponseEntity<>(deletedProductDTO , HttpStatus.OK);
+    }
+
+    @PutMapping("/products/{productId}/image")
+    public ResponseEntity<ProductDTO> updateProductImage(@PathVariable Long productId ,
+                                                         @RequestParam("Image") MultipartFile image) throws IOException {
+        ProductDTO updatedProduct = productService.updateProductImage(productId , image);
+        return new ResponseEntity<>(updatedProduct , HttpStatus.OK);
     }
 }
