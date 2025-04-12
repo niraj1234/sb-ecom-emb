@@ -1,5 +1,6 @@
 package com.ecommerce.project.service;
 
+import com.ecommerce.project.exception.APIException;
 import com.ecommerce.project.exception.ResourceNotFoundException;
 import com.ecommerce.project.model.Category;
 import com.ecommerce.project.model.Product;
@@ -157,6 +158,66 @@ public class ProductServiceImpl implements ProductService{
         productResponse.setLastPage(pageProduct.isLast());
         return productResponse;
     }
+
+    @Override
+    public ProductResponse getProductsByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()-> new ResourceNotFoundException("Category" , "categoryId" , categoryId));
+        System.out.println("Category ====> " + category);
+        System.out.println(" ====> ");
+
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber,pageSize,sortByAndOrder);
+        Page<Product> pageProduct = productRepository.findByCategoryOrderByPriceAsc(category , pageDetails);
+        List<Product> products = pageProduct.getContent();
+        System.out.println(" Page Details ====> " + pageDetails);
+        System.out.println("Product List ====> " + products);
+
+        List<ProductDTO> productDTOS = products.stream()
+                .map(p -> modelMapper.map(p,ProductDTO.class))
+                .toList();
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(productDTOS);
+        productResponse.setPageNumber(pageProduct.getNumber());
+        productResponse.setPageSize(pageProduct.getSize());
+        productResponse.setTotalElements(pageProduct.getTotalElements());
+        productResponse.setTotalPages(pageProduct.getTotalPages());
+        productResponse.setLastPage(pageProduct.isLast());
+        return productResponse;
+    }
+
+    @Override
+    public ProductResponse getProductsByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber,pageSize,sortByAndOrder);
+
+//        List<Product> products = productRepository.findByProductNameLikeIgnoreCase('%'+keyword+'%' );
+        Page<Product> pageProduct = productRepository.findByProductNameLikeIgnoreCase('%'+keyword+'%' , pageDetails);
+        List<Product> products = pageProduct.getContent();
+
+        List<ProductDTO> productDTOS = products.stream()
+                .map(p -> modelMapper.map(p , ProductDTO.class))
+                .collect(Collectors.toList());
+
+        if(products.size() == 0){
+            throw new APIException("Product not found with keyword : " + keyword);
+        }
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(productDTOS);
+        productResponse.setPageNumber(pageProduct.getNumber());
+        productResponse.setPageSize(pageProduct.getSize());
+        productResponse.setTotalElements(pageProduct.getTotalElements());
+        productResponse.setTotalPages(pageProduct.getTotalPages());
+        productResponse.setLastPage(pageProduct.isLast());
+        return productResponse;    }
 
 
 }

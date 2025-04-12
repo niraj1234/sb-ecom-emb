@@ -42,15 +42,25 @@ public class ProductController {
 
 
     @GetMapping("/public/categories/{categoryId}/products")
-    public ResponseEntity<ProductResponse> getProductsByCategory(@PathVariable Long categoryId){
-        ProductResponse productResponse = productService.getProductsByCategory(categoryId);
+    public ResponseEntity<ProductResponse> getProductsByCategory(@PathVariable Long categoryId ,
+         @RequestParam(name = "pageNumber" , defaultValue = AppConstant.PAGE_NUMBER , required = false) Integer pageNumber,
+         @RequestParam(name = "pageSize"  , defaultValue = AppConstant.PAGE_SIZE , required = false) Integer pageSize,
+         @RequestParam(name = "sortBy" , defaultValue = AppConstant.SORT_PRODUCTS_BY , required = false) String sortBy,
+         @RequestParam(name = "sortOrder" , defaultValue = AppConstant.SORT_PRODUCT_DIR , required = false) String sortOrder
+        ){
+        ProductResponse productResponse = productService.getProductsByCategory(categoryId , pageNumber, pageSize ,sortBy , sortOrder);
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
 
     @GetMapping("/public/products/keyword/{keyword}")
-    public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword){
-        ProductResponse productResponse = productService.getProductsByKeyword(keyword);
+    public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword ,
+        @RequestParam(name = "pageNumber" , defaultValue = AppConstant.PAGE_NUMBER , required = false) Integer pageNumber,
+        @RequestParam(name = "pageSize"  , defaultValue = AppConstant.PAGE_SIZE , required = false) Integer pageSize,
+        @RequestParam(name = "sortBy" , defaultValue = AppConstant.SORT_PRODUCTS_BY , required = false) String sortBy,
+        @RequestParam(name = "sortOrder" , defaultValue = AppConstant.SORT_PRODUCT_DIR , required = false) String sortOrder
+    ){
+        ProductResponse productResponse = productService.getProductsByKeyword( keyword , pageNumber, pageSize ,sortBy , sortOrder);
         return new ResponseEntity<>(productResponse , HttpStatus.FOUND);
     }
 

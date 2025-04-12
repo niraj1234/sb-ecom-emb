@@ -1,5 +1,6 @@
 package com.ecommerce.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -24,5 +25,11 @@ public class Category {
     @OneToMany(mappedBy = "category" , cascade = CascadeType.ALL)
     private List<Product> products;
 
-    
+    @Override
+    public String toString() {
+        return "Category{" +
+                "categoryId=" + categoryId +
+                ", categoryName='" + categoryName + '\'' +
+                '}';
+    }
 }
