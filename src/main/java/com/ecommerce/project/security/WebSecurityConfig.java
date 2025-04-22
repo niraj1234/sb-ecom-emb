@@ -151,6 +151,11 @@ public class WebSecurityConfig {
                 userRepository.save(admin);
             }
 
+            if (!userRepository.existsByUserName("niraj")) {
+                User niraj = new User("niraj", "niraj@example.com", passwordEncoder.encode("nirajp"));
+                userRepository.save(niraj);
+            }
+
             // Update roles for existing users
             userRepository.findByUserName("user1").ifPresent(user -> {
                 user.setRoles(userRoles);
@@ -166,6 +171,12 @@ public class WebSecurityConfig {
                 admin.setRoles(adminRoles);
                 userRepository.save(admin);
             });
+
+            userRepository.findByUserName("niraj").ifPresent(u -> {
+                u.setRoles(adminRoles);
+                userRepository.save(u);
+            });
+
         };
     }
 
