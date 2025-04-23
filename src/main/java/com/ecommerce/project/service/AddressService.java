@@ -11,4 +11,10 @@ public interface AddressService {
     AddressDTO createAddress(AddressDTO addressDto, User loggedInUser);
 
     List<AddressDTO> getAddress();
+
+    AddressDTO getAddressById(Long addressId);
+
+    List<AddressDTO> getAddressOfUser(User loggedInUser);
+
+    AddressDTO updateAddressById(Long addressId, AddressDTO addressDTO);
 }
