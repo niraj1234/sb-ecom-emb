@@ -61,6 +61,7 @@ public class AddressServiceImpl implements AddressService{
     }
 
     @Override
+
     public List<AddressDTO> getAddressOfUser(User loggedInUser) {
         List<Address> addresses = loggedInUser.getAddresses();
         List<AddressDTO> addressDTOList = addresses.stream()
