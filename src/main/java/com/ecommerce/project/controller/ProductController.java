@@ -29,16 +29,38 @@ public class ProductController {
         return new ResponseEntity<>(productDTO, HttpStatus.CREATED);
     }
 
+
+    // This method is just for reference, Same end point is for getAllProductsByKeyword()
+//    @GetMapping("/public/products")
+//    public ResponseEntity<ProductResponse> getAllProducts(
+//            @RequestParam(name = "pageNumber" , defaultValue = AppConstant.PAGE_NUMBER , required = false) Integer pageNumber,
+//            @RequestParam(name = "pageSize"  , defaultValue = AppConstant.PAGE_SIZE , required = false) Integer pageSize,
+//            @RequestParam(name = "sortBy" , defaultValue = AppConstant.SORT_PRODUCTS_BY , required = false) String sortBy,
+//            @RequestParam(name = "sortOrder" , defaultValue = AppConstant.SORT_PRODUCT_DIR , required = false) String sortOrder
+//            ){
+//        ProductResponse productResponse = productService.getAllProducts(pageNumber, pageSize ,sortBy , sortOrder);
+//        return new ResponseEntity<>(productResponse , HttpStatus.OK);
+//    }
+
+// end point created for keyword as parameter product search
     @GetMapping("/public/products")
-    public ResponseEntity<ProductResponse> getAllProducts(
+    public ResponseEntity<ProductResponse> getAllProductsByKeyword(
+            @RequestParam(name = "keyword" , required = false) String keyword,
+            @RequestParam(name = "category" , required = false) String category,
             @RequestParam(name = "pageNumber" , defaultValue = AppConstant.PAGE_NUMBER , required = false) Integer pageNumber,
             @RequestParam(name = "pageSize"  , defaultValue = AppConstant.PAGE_SIZE , required = false) Integer pageSize,
             @RequestParam(name = "sortBy" , defaultValue = AppConstant.SORT_PRODUCTS_BY , required = false) String sortBy,
             @RequestParam(name = "sortOrder" , defaultValue = AppConstant.SORT_PRODUCT_DIR , required = false) String sortOrder
-            ){
-        ProductResponse productResponse = productService.getAllProducts(pageNumber, pageSize ,sortBy , sortOrder);
+    ){
+        ProductResponse productResponse = productService.getAllProductsByKeyword(pageNumber, pageSize ,sortBy , sortOrder , keyword , category );
+        try {
+            Thread.sleep(1000);
+        }catch (Exception e){
+            System.out.println("EXCEPTION");
+        }
         return new ResponseEntity<>(productResponse , HttpStatus.OK);
     }
+
 
 
     @GetMapping("/public/categories/{categoryId}/products")

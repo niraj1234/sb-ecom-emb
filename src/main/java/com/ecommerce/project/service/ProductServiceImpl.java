@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,6 +48,9 @@ public class ProductServiceImpl implements ProductService{
 
     @Value("${project.images}")
     private String path;
+
+    @Value("${image.base.url}")
+    private String imageBaseUrl;
 
     @Autowired
     private CartRepository cartRepository;
@@ -180,9 +184,14 @@ public class ProductServiceImpl implements ProductService{
         Page<Product> pageProduct = productRepository.findAll(pageDetails);
 //        List<Product> products = productRepository.findAll();
         List<Product> products = pageProduct.getContent();
+
         List<ProductDTO> productDTOS = products.stream()
-                .map(p -> modelMapper.map(p,ProductDTO.class))
+                .map( p -> {
+                             ProductDTO prodDTO = modelMapper.map( p , ProductDTO.class);
+                             prodDTO.setImage(constructImageUrl(prodDTO.getImage()));
+                             return prodDTO; })
                 .toList();
+
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(productDTOS);
         productResponse.setPageNumber(pageProduct.getNumber());
@@ -192,6 +201,56 @@ public class ProductServiceImpl implements ProductService{
         productResponse.setLastPage(pageProduct.isLast());
         return productResponse;
     }
+
+
+    private String constructImageUrl(String imageName){
+        return imageBaseUrl.endsWith("/") ?  imageBaseUrl+ imageName : "/"+imageName ;
+    }
+
+
+    @Override
+    public ProductResponse getAllProductsByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder, String keyword, String category) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber,pageSize,sortByAndOrder);
+
+        // adding Specification to fetch data dynamically by JPA
+        Specification<Product> spec =  Specification.where(null);
+        if(keyword != null && !keyword.isEmpty()){
+            spec = spec.and( ((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like( criteriaBuilder.lower(root.get("productName")) , "%"+keyword.toLowerCase()+"%")));
+        }
+
+        if(category != null && !category.isEmpty()){
+            spec = spec.and( ((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like( criteriaBuilder.lower(root.get("category").get("categoryName")) , category)));
+        }
+
+
+        Page<Product> pageProduct = productRepository.findAll(spec , pageDetails);
+//        List<Product> products = productRepository.findAll();
+        List<Product> products = pageProduct.getContent();
+
+        List<ProductDTO> productDTOS = products.stream()
+                .map( p -> {
+                    ProductDTO prodDTO = modelMapper.map( p , ProductDTO.class);
+                    prodDTO.setImage(constructImageUrl(prodDTO.getImage()));
+                    return prodDTO; })
+                .toList();
+
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(productDTOS);
+        productResponse.setPageNumber(pageProduct.getNumber());
+        productResponse.setPageSize(pageProduct.getSize());
+        productResponse.setTotalElements(pageProduct.getTotalElements());
+        productResponse.setTotalPages(pageProduct.getTotalPages());
+        productResponse.setLastPage(pageProduct.isLast());
+        return productResponse;
+    }
+
+
 
     @Override
     public ProductResponse getProductsByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
