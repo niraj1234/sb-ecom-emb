@@ -65,18 +65,18 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
+        String jwtToken = jwtUtils.generateTokenFromUsername(String.valueOf(userDetails));
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-//        UserInfoResponse response = new UserInfoResponse(userDetails.getId(),
-//                userDetails.getUsername(), roles, jwtToken);
-
         UserInfoResponse response = new UserInfoResponse(userDetails.getId(),
-                userDetails.getUsername(), roles);
+                userDetails.getUsername(), roles, jwtToken);
+
+//        UserInfoResponse response = new UserInfoResponse(userDetails.getId(),
+//                userDetails.getUsername(), roles);
 
 //        return ResponseEntity.ok(response);
         return ResponseEntity.ok()

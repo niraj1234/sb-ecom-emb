@@ -67,6 +67,7 @@ public class JwtUtils {
                 .path("/api")
                 .maxAge(24 * 60 * 60)
                 .httpOnly(false)
+                .secure(false)  // chagned while address update add for React app
                 .build();
         return cookie;
     }
